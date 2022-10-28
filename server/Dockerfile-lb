@@ -1,0 +1,17 @@
+#!BuildTag: openqa_webui_lb
+FROM opensuse/leap:15.4
+LABEL maintainer Ivan Lausuch <ilausuch@suse.com>
+
+# hadolint ignore=DL3037
+RUN zypper ar -p 95 -f http://download.opensuse.org/repositories/devel:openQA/15.4 devel_openQA && \
+    zypper ar -p 90 -f http://download.opensuse.org/repositories/devel:openQA:Leap:15.4/15.4 devel_openQA_Leap && \
+    zypper --gpg-auto-import-keys ref && \
+    zypper in -y openQA nginx && \
+    zypper clean
+
+COPY nginx-entrypoint.sh /entrypoint.sh
+COPY nginx.conf /etc/nginx/nginx.conf.template
+
+RUN chmod a+x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]

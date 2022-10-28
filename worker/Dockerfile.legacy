@@ -1,0 +1,13 @@
+FROM fedora:36
+LABEL maintainer Jan Sedlak <jsedlak@redhat.com>, Josef Skladanka <jskladan@redhat.com>, Bala Raman <srbala@gmail.com>
+
+RUN dnf install -y openqa-worker edk2-ovmf && dnf clean all
+
+RUN mkdir -p /root/qemu
+ADD workers.ini /etc/openqa/workers.ini
+# set-up qemu
+ADD kvm-mknod.sh /root/qemu/kvm-mknod.sh
+RUN chmod +x /root/qemu/kvm-mknod.sh && /root/qemu/kvm-mknod.sh
+
+ENTRYPOINT ["/usr/share/openqa/script/worker", "--verbose", "--instance"]
+CMD ["1"]

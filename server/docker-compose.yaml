@@ -1,0 +1,171 @@
+version: '3.8'
+
+services:
+  scheduler:
+    image: openqa_webui
+    volumes: &volumes
+      - ./workdir/data/factory/iso:/data/factory/iso:z
+      - ./workdir/data/factory/hdd:/data/factory/hdd:z
+      - ./workdir/data/factory/other:/data/factory/other:z
+      - ./workdir/data/factory/tmp:/data/factory/tmp:z
+      - ./workdir/data/images:/data/images:z
+      - ./workdir/data/testresults:/data/testresults:z
+      - ./workdir/data/tests:/data/tests:z
+      - ./conf:/data/conf:z
+    environment:
+      MODE: "scheduler"
+      MOJO_LISTEN: "http://0.0.0.0:9529"
+      OPENQA_WEB_SOCKETS_HOST: "websockets"
+    depends_on:
+      webui:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9529"]
+      interval: 5s
+      timeout: 2s
+      retries: 6
+      start_period: 10s
+
+  websockets:
+    image: openqa_webui
+    build: .
+    ports:
+      - "9527"  # worker connection
+    volumes: *volumes
+    environment:
+      MODE: "websockets"
+      MOJO_LISTEN: "http://0.0.0.0:9527"
+      OPENQA_WEB_SOCKETS_HOST: "websockets"
+    depends_on:
+      webui:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9527"]
+      interval: 5s
+      timeout: 2s
+      retries: 6
+      start_period: 10s
+
+  gru:
+    image: openqa_webui
+    build: .
+    volumes: *volumes
+    environment:
+      MODE: "gru"
+    depends_on:
+      webui:
+        condition: service_healthy
+    entrypoint: "sh -c '/root/run_openqa.sh|tee /var/log/gru.log'"
+    healthcheck:
+      test: ["CMD", "grep", "started", "/var/log/gru.log"]
+      interval: 5s
+      timeout: 2s
+      retries: 6
+      start_period: 10s
+
+  livehandler:
+    image: openqa_webui
+    build: .
+    ports:
+      - "9528"  # handle live view
+    volumes: *volumes
+    environment:
+      MODE: "livehandler"
+      MOJO_LISTEN: "http://0.0.0.0:9528"
+      OPENQA_SCHEDULER_HOST: "scheduler"
+      OPENQA_WEB_SOCKETS_HOST: "websockets"
+    depends_on:
+      webui:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9528"]
+      interval: 5s
+      timeout: 2s
+      retries: 6
+      start_period: 5s
+
+  webui:
+    image: openqa_webui
+    build: .
+    ports:
+      - "9526"
+    volumes: *volumes
+    environment:
+      MODE: "webui"
+      MOJO_LISTEN: "http://0.0.0.0:9526"
+      OPENQA_SCHEDULER_HOST: "scheduler"
+      OPENQA_WEB_SOCKETS_HOST: "websockets"
+      MOJO_CLIENT_DEBUG: ${MOJO_CLIENT_DEBUG}
+    depends_on:
+      db:
+        condition: service_healthy
+    deploy:
+      replicas: ${OPENQA_WEBUI_REPLICAS}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9526/login"]
+      interval: 5s
+      timeout: 2s
+      retries: 6
+      start_period: 5s
+
+  webui_db_init:
+    image: openqa_webui
+    build: .
+    ports:
+      - "9526"
+    volumes: *volumes
+    environment:
+      MODE: "webui"
+      MOJO_LISTEN: "http://0.0.0.0:9526"
+    entrypoint: "sh -c 'chmod -R a+rwX /data/{factory,images,testresults}; /root/run_openqa.sh'"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9526/login"]
+      interval: 5s
+      timeout: 2s
+      retries: 6
+      start_period: 5s
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: openqa
+      POSTGRES_USER: openqa
+      POSTGRES_DB: openqa
+    volumes:
+      - ./workdir/db:/var/lib/postgresql/data:Z
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo 'select * from api_keys;' | psql -U openqa -v 'ON_ERROR_STOP=1' openqa"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  nginx:
+    image: openqa_webui_lb
+    build:
+      context: .
+      dockerfile: Dockerfile-lb
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      replicas: ${OPENQA_WEBUI_REPLICAS}
+      # configure a real certificate for production use here
+    volumes:
+      - ./test-cert.pem:/etc/ssl/certs/openqa.crt:z
+      - ./test-key.pem:/etc/ssl/certs/openqa.key:z
+    depends_on:
+      webui:
+        condition: service_healthy
+      websockets:
+        condition: service_healthy
+      livehandler:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9526"]
+      interval: 5s
+      timeout: 2s
+      retries: 3
+      start_period: 1s
