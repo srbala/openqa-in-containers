@@ -1,7 +1,11 @@
 FROM fedora:36
 LABEL AUTHOR="Bala Raman <srbala@gmail.com>" 
-RUN dnf install -y openqa \ 
-    openqa-httpd \
+RUN dnf install -y \
+# TODO: need to revisit to optmize for better package
+# openqa-bootstrap vs openqa-single-instance or standard
+#    openqa \ 
+#    openqa-httpd \
+    openqa-local-db \
     git \
     mod_ssl \
     nfs-utils \
@@ -19,18 +23,14 @@ RUN dnf install -y openqa \
     python3-fedfind \
     python3-libguestfs \
     python3-pip \
+    python3-openqa_client \
+    openqa-python-scripts \
     libvirt-daemon-config-network \
-    virt-install && dnf clean all
+    virt-install \
+    tini && \
+    dnf clean all && \
+    pip install --nocache-dir pytest pytest-testinfra tox
 
-# /var/lib/openqa/share should be mounted from outside
-# ADD run_openqa.sh /root/
-# ADD openqa.ini /etc/openqa/openqa.ini
-# RUN chmod +x /root/run_openqa.sh && \
-#     mkdir -p /run/dbus && \
-#     cp /etc/httpd/conf.d/openqa.conf.template /etc/httpd/conf.d/openqa.conf
-
-# EXPOSE 80
-# CMD ["/root/run_openqa.sh"]
 COPY openqa-ssl.conf /etc/apache2/vhosts.d/openqa-ssl.conf
 COPY openqa.conf /etc/apache2/vhosts.d/openqa.conf
 COPY run_openqa.sh /root/
@@ -41,6 +41,7 @@ RUN rm -rf /etc/openqa/openqa.ini /etc/openqa/client.conf \
       /var/lib/openqa/share/factory /var/lib/openqa/share/tests \
       /var/lib/openqa/testresults /var/lib/openqa/images && \
     chmod +x /root/run_openqa.sh && \
+    usermod -aG kvm,qemu,libvirt geekotest \
     mkdir -p /var/lib/openqa/pool /var/log/openqa && \
     ln -s /data/conf/openqa.ini /etc/openqa/openqa.ini && \
     ln -s /data/conf/database.ini /etc/openqa/database.ini && \
