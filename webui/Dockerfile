@@ -29,7 +29,7 @@ RUN dnf install -y \
     virt-install \
     tini && \
     dnf clean all && \
-    pip install --nocache-dir pytest pytest-testinfra tox
+    pip install --no-cache-dir pytest pytest-testinfra tox
 
 COPY openqa-ssl.conf /etc/apache2/vhosts.d/openqa-ssl.conf
 COPY openqa.conf /etc/apache2/vhosts.d/openqa.conf
@@ -41,7 +41,7 @@ RUN rm -rf /etc/openqa/openqa.ini /etc/openqa/client.conf \
       /var/lib/openqa/share/factory /var/lib/openqa/share/tests \
       /var/lib/openqa/testresults /var/lib/openqa/images && \
     chmod +x /root/run_openqa.sh && \
-    usermod -aG kvm,qemu,libvirt geekotest \
+    usermod -aG kvm,qemu,libvirt geekotest && \
     mkdir -p /var/lib/openqa/pool /var/log/openqa && \
     ln -s /data/conf/openqa.ini /etc/openqa/openqa.ini && \
     ln -s /data/conf/database.ini /etc/openqa/database.ini && \
