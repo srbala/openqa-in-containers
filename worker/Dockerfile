@@ -36,8 +36,8 @@ RUN chmod +x /root/qemu/kvm-mknod.sh && \
     mkdir -p /var/lib/openqa/share && \
     ln -s /data/conf/client.conf /etc/openqa/client.conf && \
     ln -s /data/conf/workers.ini /etc/openqa/workers.ini && \
-    ln -s /data/factory /var/lib/openqa/share/factory && \
-    ln -s /data/tests /var/lib/openqa/share/tests && \
+    ln -s /data/work/factory /var/lib/openqa/share/factory && \
+    ln -s /data/work/tests /var/lib/openqa/share/tests && \
     # set proper ownership and file modes
     chown -R _openqa-worker /usr/share/openqa/script/worker /var/lib/openqa/cache /var/lib/openqa/pool && \
     chmod -R ug+rw /usr/share/openqa/script/worker /var/lib/openqa/cache /var/lib/openqa/pool && \

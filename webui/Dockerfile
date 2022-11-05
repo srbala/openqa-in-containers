@@ -49,10 +49,10 @@ RUN rm -rf /etc/openqa/openqa.ini /etc/openqa/client.conf \
     ln -s /data/conf/openqa.ini /etc/openqa/openqa.ini && \
     ln -s /data/conf/database.ini /etc/openqa/database.ini && \
     ln -s /data/conf/client.conf /etc/openqa/client.conf && \
-    ln -s /data/factory /var/lib/openqa/share/factory && \
-    ln -s /data/tests /var/lib/openqa/share/tests && \
-    ln -s /data/testresults /var/lib/openqa/testresults && \
-    ln -s /data/images /var/lib/openqa/images && \
+    ln -s /data/work/factory /var/lib/openqa/share/factory && \
+    ln -s /data/work/tests /var/lib/openqa/share/tests && \
+    ln -s /data/work/testresults /var/lib/openqa/testresults && \
+    ln -s /data/work/images /var/lib/openqa/images && \
     chown -R geekotest /usr/share/openqa /var/lib/openqa /var/log/openqa && \
     chmod ug+rw /usr/share/openqa /var/lib/openqa /var/log/openqa && \
     find /usr/share/openqa /var/lib/openqa /var/log/openqa -type d -exec chmod ug+x {} \;
