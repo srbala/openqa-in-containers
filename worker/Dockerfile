@@ -14,17 +14,12 @@ RUN dnf install -y openqa-worker \
     gzip \
     rsync \
     ipxe-roms-qemu \
-    withlock && dnf clean all
-
-# RUN mkdir -p /root/qemu
-# ADD workers.ini /etc/openqa/workers.ini
-# # set-up qemu
-# ADD kvm-mknod.sh /root/qemu/kvm-mknod.sh
-# RUN chmod +x /root/qemu/kvm-mknod.sh && /root/qemu/kvm-mknod.sh
-
-# ENTRYPOINT ["/usr/share/openqa/script/worker", "--verbose", "--instance"]
-# CMD ["1"]
-RUN (dnf install -y kmod qemu-kvm libvirt-daemon-driver-qemu edk2-ovmf os-autoinst os-autoinst-openvswitch qemu-tools qemu-device-display-virtio-gpu qemu-device-display-virtio-gpu-ccw qemu-device-display-virtio-gpu-gl qemu-device-display-virtio-gpu-pci qemu-device-display-virtio-gpu-pci-gl ||:) && \
+    sudo \
+    withlock && dnf clean all; \
+    groupmod -g 701 _openqa-worker; \ 
+    groupadd -g 700 geekotest; \
+    usermod -u 701 _openqa-worker; \
+    (dnf install -y kmod qemu-kvm libvirt-daemon-driver-qemu edk2-ovmf qemu-tools qemu-device-display-virtio-gpu qemu-device-display-virtio-gpu-ccw qemu-device-display-virtio-gpu-gl qemu-device-display-virtio-gpu-pci qemu-device-display-virtio-gpu-pci-gl ||:) && \
     (dnf install -y edk2-aarch64 ||:) && \
     dnf clean all && \
     mkdir -p /root/qemu

@@ -29,7 +29,10 @@ RUN dnf install -y \
     virt-install \
     tini && \
     dnf clean all && \
-    pip install --no-cache-dir pytest pytest-testinfra tox
+    pip install --no-cache-dir pytest pytest-testinfra tox && \
+    groupmod -g 700 geekotest; \ 
+    groupadd -g 701  _openqa-worker; \
+    usermod -u 700 geekotest; 
 
 COPY openqa-ssl.conf /etc/apache2/vhosts.d/openqa-ssl.conf
 COPY openqa.conf /etc/apache2/vhosts.d/openqa.conf
