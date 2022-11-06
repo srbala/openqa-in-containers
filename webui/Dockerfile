@@ -43,6 +43,10 @@ RUN rm -rf /etc/openqa/openqa.ini /etc/openqa/client.conf \
       /etc/openqa/database.ini \
       /var/lib/openqa/share/factory /var/lib/openqa/share/tests \
       /var/lib/openqa/testresults /var/lib/openqa/images && \
+    cp /etc/httpd/conf.d/openqa.conf.template /etc/httpd/conf.d/openqa.conf && \
+    cp /etc/httpd/conf.d/openqa-ssl.conf.template /etc/httpd/conf.d/openqa-ssl.conf && \
+    mv /etc/httpd/conf.d/ssl.conf /etc/httpd/conf.d/ssl.conf_orig && \
+    cp /etc/apache2/vhosts.d/openqa-ssl.conf /etc/httpd/conf.d/ssl.conf && \
     chmod +x /root/run_openqa.sh && \
     usermod -aG kvm,qemu,libvirt geekotest && \
     mkdir -p /var/lib/openqa/pool /var/log/openqa && \

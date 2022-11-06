@@ -33,9 +33,9 @@ for i in $(seq "$size"); do
   $cre run \
     --detach --rm \
     --hostname "openqa_worker_$i" --name "openqa_worker_$i" \
-    -v "$PWD/conf:/data/conf:ro" \
-    -v "$PWD/../webui/workdir/data/factory:/data/factory:rw" \
-    -v "$PWD/../webui/workdir/data/tests:/data/tests:ro" \
+    -v "$OPENQA_SITE_HOME/data/conf:/data/conf:ro" \
+    -v "$OPENQA_SITE_HOME/data/work/factory:/data/factory:rw" \
+    -v "$OPENQA_SITE_HOME/data/work/tests:/data/tests:ro" \
     --privileged openqa_worker \
     -e OPENQA_WORKER_INSTANCE="$i"
 done
