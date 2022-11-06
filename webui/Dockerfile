@@ -61,5 +61,15 @@ RUN rm -rf /etc/openqa/openqa.ini /etc/openqa/client.conf \
     chmod ug+rw /usr/share/openqa /var/lib/openqa /var/log/openqa && \
     find /usr/share/openqa /var/lib/openqa /var/log/openqa -type d -exec chmod ug+x {} \;
 
+RUN systemctl set-default multi-user.target; \
+    systemctl enable httpd; \
+    systemctl enable openqa-gru; \
+    systemctl enable openqa-scheduler; \
+    systemctl enable openqa-websockets; \
+    systemctl enable openqa-webui; \
+    systemctl enable fm-consumer@fedora_openqa_scheduler; \
+    setsebool -P httpd_can_network_connect 1
+
 EXPOSE 80 443 9526 9527 9528 9529
-CMD ["/root/run_openqa.sh"]
+# CMD ["/root/run_openqa.sh"]
+CMD ["/sbin/init"]
