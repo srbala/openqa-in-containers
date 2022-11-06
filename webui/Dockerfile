@@ -4,8 +4,8 @@ RUN dnf install -y \
 # TODO: need to revisit to optmize for better package
 # openqa-bootstrap vs openqa-single-instance or standard
 #    openqa \ 
-#    openqa-httpd \
     openqa-local-db \
+    openqa-httpd \
     git \
     mod_ssl \
     nfs-utils \
