@@ -32,10 +32,10 @@ RUN dnf install -y \
     pip install --no-cache-dir pytest pytest-testinfra tox && \
     groupmod -g 700 geekotest; \ 
     groupadd -g 701  _openqa-worker; \
-    usermod -u 700 geekotest; 
+    usermod -u 700 geekotest;
 
-COPY openqa-ssl.conf /etc/apache2/vhosts.d/openqa-ssl.conf
-COPY openqa.conf /etc/apache2/vhosts.d/openqa.conf
+# COPY openqa-ssl.conf /etc/apache2/vhosts.d/openqa-ssl.conf
+# COPY openqa.conf /etc/apache2/vhosts.d/openqa.conf
 COPY run_openqa.sh /root/
 
 # set-up shared data and configuration
@@ -44,9 +44,9 @@ RUN rm -rf /etc/openqa/openqa.ini /etc/openqa/client.conf \
       /var/lib/openqa/share/factory /var/lib/openqa/share/tests \
       /var/lib/openqa/testresults /var/lib/openqa/images && \
     cp /etc/httpd/conf.d/openqa.conf.template /etc/httpd/conf.d/openqa.conf && \
-    cp /etc/httpd/conf.d/openqa-ssl.conf.template /etc/httpd/conf.d/openqa-ssl.conf && \
-    mv /etc/httpd/conf.d/ssl.conf /etc/httpd/conf.d/ssl.conf_orig && \
-    cp /etc/apache2/vhosts.d/openqa-ssl.conf /etc/httpd/conf.d/ssl.conf && \
+#   cp /etc/httpd/conf.d/openqa-ssl.conf.template /etc/httpd/conf.d/openqa-ssl.conf && \
+#    mv /etc/httpd/conf.d/ssl.conf /etc/httpd/conf.d/ssl.conf_orig && \
+#    cp /etc/apache2/vhosts.d/openqa-ssl.conf /etc/httpd/conf.d/ssl.conf && \
     chmod +x /root/run_openqa.sh && \
     usermod -aG kvm,qemu,libvirt geekotest && \
     mkdir -p /var/lib/openqa/pool /var/log/openqa && \
@@ -67,8 +67,8 @@ RUN systemctl set-default multi-user.target; \
     systemctl enable openqa-scheduler; \
     systemctl enable openqa-websockets; \
     systemctl enable openqa-webui; \
-    systemctl enable fm-consumer@fedora_openqa_scheduler; \
-    setsebool -P httpd_can_network_connect 1
+    systemctl enable fm-consumer@fedora_openqa_scheduler; 
+#    setsebool -P httpd_can_network_connect 1
 
 EXPOSE 80 443 9526 9527 9528 9529
 # CMD ["/root/run_openqa.sh"]
