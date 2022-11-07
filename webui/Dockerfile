@@ -1,5 +1,5 @@
 FROM fedora:36
-LABEL AUTHOR="Bala Raman <srbala@gmail.com>" 
+LABEL AUTHOR="Bala Raman <srbala@gmail.com>"
 RUN dnf install -y \
 # TODO: need to revisit to optmize for better package
 # openqa-bootstrap vs openqa-single-instance or standard
@@ -30,7 +30,7 @@ RUN dnf install -y \
     tini && \
     dnf clean all && \
     pip install --no-cache-dir pytest pytest-testinfra tox && \
-    groupmod -g 700 geekotest; \ 
+    groupmod -g 700 geekotest; \
     groupadd -g 701  _openqa-worker; \
     usermod -u 700 geekotest;
 
@@ -67,7 +67,7 @@ RUN systemctl set-default multi-user.target; \
     systemctl enable openqa-scheduler; \
     systemctl enable openqa-websockets; \
     systemctl enable openqa-webui; \
-    systemctl enable fm-consumer@fedora_openqa_scheduler; 
+    systemctl enable fm-consumer@fedora_openqa_scheduler;
 #    setsebool -P httpd_can_network_connect 1
 
 EXPOSE 80 443 9526 9527 9528 9529
