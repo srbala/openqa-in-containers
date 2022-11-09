@@ -3,7 +3,7 @@ LABEL AUTHOR="Bala Raman <srbala@gmail.com>"
 RUN dnf install -y \
 # TODO: need to revisit to optmize for better package
 # openqa-bootstrap vs openqa-single-instance or standard
-#    openqa \ 
+#    openqa \
     openqa-local-db \
     openqa-httpd \
     git \
@@ -34,20 +34,17 @@ RUN dnf install -y \
     groupadd -g 701  _openqa-worker; \
     usermod -u 700 geekotest;
 
-# COPY openqa-ssl.conf /etc/apache2/vhosts.d/openqa-ssl.conf
-# COPY openqa.conf /etc/apache2/vhosts.d/openqa.conf
-COPY run_openqa.sh /root/
+COPY openqa.conf /etc/httpd/conf.d/openqa.conf
+COPY openqa-ssl.conf /etc/httpd/conf.d/openqa-ssl.conf
+COPY run_openqa.sh /usr/local/bin
 
 # set-up shared data and configuration
 RUN rm -rf /etc/openqa/openqa.ini /etc/openqa/client.conf \
       /etc/openqa/database.ini \
       /var/lib/openqa/share/factory /var/lib/openqa/share/tests \
       /var/lib/openqa/testresults /var/lib/openqa/images && \
-    cp /etc/httpd/conf.d/openqa.conf.template /etc/httpd/conf.d/openqa.conf && \
-#   cp /etc/httpd/conf.d/openqa-ssl.conf.template /etc/httpd/conf.d/openqa-ssl.conf && \
-#    mv /etc/httpd/conf.d/ssl.conf /etc/httpd/conf.d/ssl.conf_orig && \
-#    cp /etc/apache2/vhosts.d/openqa-ssl.conf /etc/httpd/conf.d/ssl.conf && \
-    chmod +x /root/run_openqa.sh && \
+    mv /etc/httpd/conf.d/ssl.conf /etc/httpd/conf.d/ssl.conf_orig && \
+    chmod +x /usr/local/bin/run_openqa.sh && \
     usermod -aG kvm,qemu,libvirt geekotest && \
     mkdir -p /var/lib/openqa/pool /var/log/openqa && \
     ln -s /data/conf/openqa.ini /etc/openqa/openqa.ini && \
@@ -68,8 +65,7 @@ RUN systemctl set-default multi-user.target; \
     systemctl enable openqa-websockets; \
     systemctl enable openqa-webui; \
     systemctl enable fm-consumer@fedora_openqa_scheduler;
-#    setsebool -P httpd_can_network_connect 1
 
 EXPOSE 80 443 9526 9527 9528 9529
-# CMD ["/root/run_openqa.sh"]
+# CMD ["/usr/local/bin/run_openqa.sh"]
 CMD ["/sbin/init"]
